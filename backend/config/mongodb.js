@@ -1,13 +1,25 @@
 import mongoose from "mongoose";
 
-const connectDB=async ()=>{
+const connectDB = async () => {
+  try {
+    // Listen for successful connection events
+    mongoose.connection.on("connected", () => {
+      console.log(`Database Connected: ${mongoose.connection.host}`);
+    });
 
-    mongoose.connection.on('connected',()=>{
-        console.log("Database Connected")
-    })
+    // Listen for disconnection events
+    mongoose.connection.on("disconnected", () => {
+      console.log("Database Disconnected");
+    });
 
-    await mongoose.connect(`${process.env.MONGODB_URI}/remove-bg`)
-}
+    // Attempt connection
+    await mongoose.connect(process.env.MONGODB_URI, {
+      dbName: "remove-bg", // Specify the database name
+    });
+  } catch (error) {
+    console.error(`Error connecting to the database: ${error.message}`);
+    process.exit(1); // Exit the process with a failure code
+  }
+};
 
-
-export default  connectDB;
+export default connectDB;
